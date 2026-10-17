@@ -37,6 +37,11 @@ with st.sidebar:
     )
 
     city = st.text_input("City", "Bengaluru")
+    preferred_area = st.text_input(
+        "Preferred locality or landmark (optional)",
+        placeholder="e.g. Koramangala or Whitefield",
+        help="Physical-venue searches prioritize this area when provided.",
+    )
     attendees = st.number_input(
         "Expected attendees", min_value=1, value=150
     )
@@ -65,6 +70,12 @@ with st.sidebar:
         default=list(facility_labels.keys()),
     )
 
+    include_booking_providers = st.checkbox(
+        "Also show booking agencies and venue platforms",
+        value=False,
+        help="These are shown separately and are never ranked as venues.",
+    )
+
     fallback_text = st.text_area(
         "Optional fallback venue URLs",
         placeholder="Paste one official venue website URL per line",
@@ -74,6 +85,7 @@ with st.sidebar:
 event = {
     "event_type": event_type,
     "city": city,
+    "preferred_area": preferred_area,
     "attendees": int(attendees),
     "budget": float(budget),
     "date": event_date.isoformat(),
@@ -94,31 +106,32 @@ if st.button("🔎 Discover and research venues", type="primary"):
         st.error("Please enter a city.")
         st.stop()
 
-    with st.spinner("Discovering candidate venue websites..."):
-        candidates, discovery_method = discover_venues(
+    with st.spinner("Finding physical venue locations..."):
+        candidates, booking_providers, discovery_method = discover_venues(
             city=city.strip(),
             event_type=event_type,
             attendees=int(attendees),
+            preferred_area=preferred_area,
             limit=3,
             fallback_urls=fallback_urls,
+            include_booking_providers=include_booking_providers,
         )
 
     st.write("Discovery method:", discovery_method)
 
     if not candidates:
         st.warning(
-            "No venue websites were discovered. Paste a few official "
-            "venue URLs in the sidebar and try again."
+            "No physical venues were found. Add GOOGLE_MAPS_API_KEY to "
+            ".env or paste official venue URLs in the sidebar."
         )
-        st.stop()
 
-    st.write(f"Found {len(candidates)} candidate website(s).")
+    st.write(f"Found {len(candidates)} physical venue candidate(s).")
 
     researched_venues = []
     progress = st.progress(0)
 
     for index, candidate in enumerate(candidates):
-        name = candidate.get("name", candidate["website_url"])
+        name = candidate.get("name", candidate.get("website_url", "Unknown"))
         st.write(f"Researching {index + 1}/{len(candidates)}: {name}")
 
         try:
@@ -130,7 +143,7 @@ if st.button("🔎 Discover and research venues", type="primary"):
 
         except Exception as exc:
             st.warning(
-                f"Could not research {candidate['website_url']}: {exc}"
+                f"Could not research {candidate.get('website_url', name)}: {exc}"
             )
 
         progress.progress((index + 1) / len(candidates))
@@ -153,6 +166,7 @@ if st.button("🔎 Discover and research venues", type="primary"):
         venue.model_dump(mode="json") for venue in researched_venues
     ]
     st.session_state["event"] = event
+    st.session_state["booking_providers"] = booking_providers
 
 if "venues" in st.session_state:
     venues = st.session_state["venues"]
@@ -173,6 +187,7 @@ if "venues" in st.session_state:
         for venue in venues:
             rows.append({
                 "Venue": venue.get("name"),
+                "Address": venue.get("address") or "Not verified",
                 "Match score": venue.get("match_score"),
                 "Published price (₹)": venue.get("published_price"),
                 "Capacity": venue.get("capacity_max") or "Not verified",
@@ -191,8 +206,10 @@ if "venues" in st.session_state:
                 f"{venue.get('match_score', 0)}/100"
             ):
                 website = venue.get("website_url")
+                google_maps_url = venue.get("google_maps_url")
 
                 st.write("Address:", venue.get("address") or "Not verified")
+                st.write("Discovery source:", venue.get("discovery_source"))
                 st.write(
                     "Published price:",
                     venue.get("published_price")
@@ -231,10 +248,17 @@ if "venues" in st.session_state:
 
                 # These actions deliberately hand control back to the user:
                 # no email is sent and no booking is made by VenueScout AI.
-                action_columns = st.columns(3)
+                action_columns = st.columns(4)
+
+                if google_maps_url:
+                    action_columns[0].link_button(
+                        "Open in Google Maps",
+                        google_maps_url,
+                        use_container_width=True,
+                    )
 
                 if website:
-                    action_columns[0].link_button(
+                    action_columns[1].link_button(
                         "Visit venue / booking page",
                         website,
                         use_container_width=True,
@@ -252,19 +276,19 @@ if "venues" in st.session_state:
                             "body": inquiry,
                         })
                     )
-                    action_columns[1].link_button(
+                    action_columns[2].link_button(
                         "Email enquiry draft",
                         email_link,
                         use_container_width=True,
                     )
                 else:
-                    action_columns[1].caption(
+                    action_columns[2].caption(
                         "No published email address"
                     )
 
                 contact_phone = venue.get("contact_phone")
                 if contact_phone:
-                    action_columns[2].link_button(
+                    action_columns[3].link_button(
                         "Call venue",
                         f"tel:{contact_phone}",
                         use_container_width=True,
@@ -281,3 +305,18 @@ if "venues" in st.session_state:
             "Scores are preliminary rule-based matches. Confirm prices, "
             "facilities, and event-date availability directly with each venue."
         )
+
+if "booking_providers" in st.session_state:
+    providers = st.session_state["booking_providers"]
+    if providers:
+        st.divider()
+        st.header("Booking agencies and venue platforms")
+        st.caption(
+            "These are intermediary services, not physical venue results. "
+            "They are not included in venue scores."
+        )
+        for provider in providers:
+            st.link_button(
+                f"Open {provider.get('name', 'booking provider')}",
+                provider["website_url"],
+            )

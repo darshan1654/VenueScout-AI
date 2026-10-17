@@ -4,7 +4,7 @@
 
 **Project Name:** VenueScout AI  
 **Category:** AI Agents | Browser Automation | Event Planning  
-**Core Platform:** TinyFish Agent API  
+**Core Platforms:** Google Places API (New) + TinyFish Agent API
 **Target:** 4–5 hour hackathon MVP
 
 VenueScout AI is an AI-powered venue research and comparison assistant that helps event organizers discover suitable venues, research their websites, compare facilities and prices, and prepare venue inquiry messages in one place.
@@ -13,7 +13,7 @@ The initial use case is finding a venue for a hackathon in Bengaluru, India. The
 
 ## 2. Problem Statement
 
-Finding the right venue is a time-consuming manual process. Event organizers often need to:
+Finding the right physical venue is a time-consuming manual process. Event organizers often need to:
 
 - Search Google Maps, search engines, and venue directories.
 - Open multiple venue websites.
@@ -21,17 +21,26 @@ Finding the right venue is a time-consuming manual process. Event organizers oft
 - Contact venues individually to ask about availability and quotations.
 - Compare options manually in spreadsheets or notes.
 
-Information is often scattered across websites, and prices or availability may not be published.
+Search results also commonly mix physical venues with agencies and platforms that
+only help book venues. Information is often scattered across websites, and
+prices or availability may not be published.
 
-VenueScout AI aims to reduce this effort by automating venue discovery, website research, information extraction, and comparison.
+VenueScout AI aims to reduce this effort by prioritizing exact physical
+locations, then automating website research, information extraction, and
+comparison.
 
 ## 3. Proposed Solution
 
-The user enters their event requirements. VenueScout AI discovers potential venues, uses TinyFish to navigate their real websites, extracts published information, and presents a comparison of the most suitable options.
+The user enters their event requirements. VenueScout AI uses Google Places API
+(New) to discover physical venues with exact addresses and Maps links, then
+uses TinyFish to navigate official venue websites, extract published
+information, and present a comparison of the most suitable options.
 
 The application should clearly distinguish verified website information from missing or unconfirmed details.
 
-**Primary objective:** Help users create a research-backed shortlist of suitable venues without visiting every website manually.
+**Primary objective:** Help users create a research-backed shortlist of
+physical venues without visiting every website manually. Booking agencies are
+shown separately as optional intermediary links.
 
 The application recommends venues; it does not guarantee availability or automatically book them.
 
@@ -70,17 +79,20 @@ Allow users to enter:
 
 ### Feature 2: Hybrid Venue Discovery
 
-Find candidate venues using a discovery source, such as a search API, venue directory, or places API.
+Find physical candidate venues through Google Places API (New) as the primary
+discovery source. Use TinyFish Search only to find optional booking agencies or
+venue platforms, and never treat those providers as venues.
 
 The discovery process should:
 
-1. Search for venues relevant to the event type and city.
-2. Collect venue names, website URLs, and available location details.
-3. Remove duplicate candidates.
-4. Prioritize candidates with useful official websites.
-5. Use a small curated fallback list if automated discovery fails.
+1. Search for physical venues relevant to the event type, city, and preferred locality.
+2. Collect Google Place ID, venue name, exact address, coordinates, Maps URL, phone, and official website when available.
+3. Remove duplicates using Place ID first, then normalized name and address.
+4. Prioritize results with an exact address and a matching official website.
+5. Show agencies/platforms in a distinct secondary list with their own URLs.
+6. Use user-provided official venue URLs only when automated location discovery fails.
 
-The discovery provider finds candidate venues; TinyFish performs the deeper website research.
+Google Places establishes the physical location; TinyFish performs deeper official-website research. Agency URLs are discovery aids, not evidence of venue facts.
 
 Do not rely on unauthorized scraping of Google Maps. Use permitted APIs or other suitable discovery sources.
 
@@ -158,9 +170,11 @@ The dashboard should include:
 - Shortlisted venue cards or comparison table
 - Published prices and available facilities
 - Match scores and reasons
+- Exact address and Open in Google Maps link
 - Official website and evidence links
 - Missing-information warnings
 - Contact details when publicly available
+- Optional, separately labelled booking-agency and venue-platform links
 
 The interface should be clear, responsive, and suitable for a live hackathon demonstration.
 
@@ -195,15 +209,15 @@ Streamlit Interface
 Event Requirements
  |
  v
-Venue Discovery Module
-(Search API / Directory / Curated Fallback)
+Google Places API (New)
+(physical venue, address, Place ID, Maps URL)
  |
  v
-Candidate Venue URLs
+Physical Venue Candidates
  |
  v
 TinyFish Agent API
-(Real Website Navigation and Research)
+(Official Website Navigation and Research)
  |
  v
 Structured Research Results
@@ -225,13 +239,20 @@ Venue Comparison     Inquiry Draft
       Streamlit Results
 ```
 
-TinyFish must be central to the workflow by carrying out real website navigation and research, rather than merely returning static or manually prepared information.
+An optional parallel TinyFish Search path returns booking agencies and venue
+platforms. Those results are displayed as intermediary links and are never
+treated as physical venues or included in the venue score.
+
+Google Places establishes a venue's location identity; TinyFish remains central
+to website navigation and evidence-backed facility, pricing, and contact
+research.
 
 ## 7. Recommended Technology Stack
 
 | Component | Technology | Purpose |
 |---|---|---|
 | Programming language | Python | Main application logic |
+| Physical-location discovery | Google Places API (New) | Find named venues with address, Maps URL, Place ID, and official website |
 | Website research | TinyFish Agent API | Navigate real venue websites |
 | User interface | Streamlit | Event form and comparison dashboard |
 | Data validation | Pydantic | Validate and normalize results |
@@ -253,12 +274,14 @@ VenueScout-AI/
 |-- README.md
 |-- requirements.txt
 |-- .env
+|-- .env.example
 |-- .gitignore
 |
 |-- src/
 |   |-- venuescout/
 |       |-- __init__.py
 |       |-- tinyfish_client.py
+|       |-- google_places_client.py
 |       |-- discovery.py
 |       |-- research.py
 |       |-- models.py
