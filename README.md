@@ -25,10 +25,48 @@ guarantee availability.
 
 ## Architecture
 
-```text
-Streamlit form -> candidate discovery -> TinyFish website research
-    -> Pydantic validation -> rule-based scoring -> comparison and enquiry actions
+```mermaid
+flowchart TD
+    U[Event organizer] --> UI[Streamlit dashboard<br/>app.py]
+    UI --> R[Event requirements<br/>type, city, date, attendees,<br/>budget, facilities]
+
+    R --> D[Venue discovery<br/>discovery.py]
+    D --> S[TinyFish Search API]
+    S --> C[Candidate venue URLs]
+    F[User-provided official URLs] -. fallback .-> C
+
+    C --> OR[Research orchestrator<br/>research.py]
+    OR --> V{Venue website<br/>validated?}
+    V -- no --> E[Show research warning<br/>and continue]
+    V -- yes --> B[TinyFish browser agent]
+    B --> X[Published facts and<br/>source URLs]
+
+    X --> P[Pydantic validation<br/>models.py]
+    P --> SC[Transparent scoring<br/>scoring.py]
+    R --> SC
+    SC --> O[Ranked venue comparison]
+
+    O --> I[Inquiry draft generator<br/>inquiry.py]
+    I --> A[User-controlled actions:<br/>website, email, phone]
+    O --> J[(Local JSON results<br/>data/venue_results.json)]
 ```
+
+| Layer | Responsibility | Main files |
+|---|---|---|
+| Presentation | Collect event requirements, show progress, compare venues, and expose user-controlled contact actions. | `app.py` |
+| Discovery | Search for relevant venue websites, remove duplicates, and use supplied URLs if discovery fails. | `src/venuescout/discovery.py` |
+| Research | Validate that a candidate is a venue, browse official pages, and request structured evidence-backed facts. | `src/venuescout/research.py`, `tinyfish_client.py` |
+| Validation | Normalize data and represent missing facts as `null` or unverified. | `src/venuescout/models.py` |
+| Decisioning | Score capacity, published price, and requested amenities with explainable rules. | `src/venuescout/scoring.py` |
+| Follow-up | Generate an editable enquiry draft; users choose whether to open a website, email client, or phone dialer. | `src/venuescout/inquiry.py` |
+| Storage | Persist the latest successful research results locally for the MVP. | `data/venue_results.json` |
+
+### Design boundaries
+
+- TinyFish is used for discovery and real website navigation; it is not treated as a source of facts by itself.
+- Only information published on venue websites should be marked as verified, with supporting URLs retained.
+- Missing capacity, prices, amenities, or availability remain unverified rather than inferred.
+- The system never automatically sends email, books a venue, or makes payments.
 
 ## Setup
 
