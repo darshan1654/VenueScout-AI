@@ -73,6 +73,12 @@ flowchart TD
 - Missing capacity, prices, amenities, or availability remain unverified rather than inferred.
 - The system never automatically sends email, books a venue, or makes payments.
 
+## Demo video
+
+[![Watch the VenueScout AI demo on YouTube](https://img.youtube.com/vi/xQ22CQIejuU/hqdefault.jpg)](https://youtu.be/xQ22CQIejuU)
+
+[Watch the VenueScout AI demo on YouTube](https://youtu.be/xQ22CQIejuU)
+
 ## Setup
 
 1. Create and activate a Python 3.10+ virtual environment.
