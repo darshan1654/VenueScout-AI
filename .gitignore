@@ -1,0 +1,23 @@
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+
+# Streamlit
+.streamlit/secrets.toml
+
+# Editors and operating systems
+.vscode/
+.idea/
+*.swp
+Thumbs.db
+.DS_Store

@@ -1,0 +1,55 @@
+[
+  {
+    "name": "BHIVE Workspace Meeting & Conference Rooms",
+    "website_url": "https://bhiveworkspace.com/best-coworking-spaces-in-bengaluru-with-meeting-conference-rooms-by-location-budget/",
+    "source_urls": [
+      "https://bhiveworkspace.com/best-coworking-spaces-in-bengaluru-with-meeting-conference-rooms-by-location-budget/"
+    ],
+    "address": "48, Church Street, Haridevpura, Shanthala Nagar, Ashok Nagar, Bengaluru, Karnataka 560001",
+    "area": "Bengaluru (multiple locations including Bellandur, HSR Layout, MG Road, Indiranagar, Whitefield, Koramangala, Jayanagar, BTM Layout, Hebbal)",
+    "capacity_min": null,
+    "capacity_max": null,
+    "published_price": null,
+    "price_currency": "INR",
+    "price_notes": "Small meeting rooms: ₹300 – ₹800/hour; Conference rooms: ₹800 – ₹2,500/hour; Day pass coworking: ₹300 – ₹1,000/day. No specific venue capacity or event pricing published for hackathons or 150-person events. Pricing is hourly/daily; quote-based pricing may apply for large events.",
+    "wifi": true,
+    "power_outlets": null,
+    "projector_or_display": null,
+    "catering": null,
+    "parking": null,
+    "contact_phone": "+91-9538677774",
+    "contact_email": "salesenquiry@bhiveworkspace.com",
+    "date_availability": null,
+    "evidence_notes": [
+      "Website is a blog guide listing BHIVE Workspace coworking locations in Bengaluru with meeting and conference rooms.",
+      "General amenities mentioned for meeting rooms include high-speed WiFi, TV & AV setup, and soundproof spaces.",
+      "Contact information (phone: +91-9538677774, email: salesenquiry@bhiveworkspace.com) is provided on the page.",
+      "Physical address '48, Church Street, Haridevpura, Shanthala Nagar, Ashok Nagar, Bengaluru, Karnataka 560001' appears in the footer.",
+      "No specific capacity information for meeting rooms or conference rooms is published on this page.",
+      "No event-specific or hackathon pricing is published; only hourly meeting room and day pass rates are listed.",
+      "Date availability for 2026-10-20 is not mentioned on the website.",
+      "Power outlets, catering, and parking details are not specified for meeting/conference rooms on this page."
+    ],
+    "unknown_fields": [
+      "capacity_min - No venue room capacities published",
+      "capacity_max - No venue room capacities published",
+      "published_price - No published event/venue price for 150-person hackathon; only hourly/daily rates listed",
+      "power_outlets - Not specified on the page",
+      "projector_or_display - TV & AV setup mentioned but projector specifics not detailed",
+      "catering - Not specified on the page",
+      "parking - Not specified on the page",
+      "date_availability - No availability information for 2026-10-20 provided"
+    ],
+    "research_status": "researched",
+    "match_score": 8.0,
+    "match_reasons": [
+      "Capacity needs confirmation",
+      "Final venue cost needs confirmation",
+      "Wi-Fi is listed",
+      "Power outlets is not verified",
+      "Projector/display is not verified",
+      "Catering is not verified",
+      "Parking is not verified"
+    ]
+  }
+]
